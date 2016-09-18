@@ -17,4 +17,5 @@ curl = "0.2.19"
 rustc-serialize = "0.3.19"
 
 [replace]
+# TODO: This is temporary! (waiting for https://github.com/servo/rust-url/pull/223 to land)
 "url:1.2.0" = { git = "https://github.com/Phrohdoh/rust-url.git" }
