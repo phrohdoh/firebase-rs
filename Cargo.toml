@@ -12,6 +12,6 @@ keywords = ["firebase", "rest", "api"]
 
 [dependencies]
 # TODO: This is temporary! (waiting for https://github.com/servo/rust-url/pull/223 to land)
-url = { git = "git@github.com:Phrohdoh/rust-url.git" }
+url = { git = "https://github.com/Phrohdoh/rust-url.git" }
 curl = "0.2.19"
 rustc-serialize = "0.3.19"
