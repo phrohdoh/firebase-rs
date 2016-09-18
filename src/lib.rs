@@ -44,7 +44,7 @@ impl Firebase {
     /// - If a url cannot be parsed into a valid url then a ```Err(ParseError::Parser(url::ParseError)```
     ///   will be returned.
     pub fn new(url: &str) -> Result<Self, ParseError> {
-        let url = try!( parse(&url) );
+        let url = try!(parse(&url));
         if url.scheme() != "https" {
             return Err(ParseError::UrlIsNotHTTPS);
         }
@@ -83,7 +83,7 @@ impl Firebase {
     /// - If a url cannot be parsed into a valid url then a ```Err(ParseError::Parser(url::ParseError)```
     ///   will be returned.
     pub fn authed(url: &str, auth_token: &str) -> Result<Self, ParseError> {
-        let mut url = try!( parse(&url) );
+        let mut url = try!(parse(&url));
         if url.scheme() != "https" {
             return Err(ParseError::UrlIsNotHTTPS);
         }
@@ -93,18 +93,6 @@ impl Firebase {
 
         Ok(Firebase {
             url: Arc::new(url),
-        })
-    }
-
-    fn last_segment_without_ext(&self, url: &Url, ext: &str) -> Option<String> {
-        url.path_segments().and_then(|segments| {
-            segments.last().and_then(|last| {
-                if last.ends_with(ext) {
-                    Some(last.trim_right_matches(ext).to_string())
-                } else {
-                    None
-                }
-            })
         })
     }
 
@@ -127,7 +115,7 @@ impl Firebase {
         {
             // Remove '.json' from the end of the old path.
             // We may have /foo/bar.json and want /foo/bar/baz.json
-            let last_segment_no_json = self.last_segment_without_ext(&url, ".json");
+            let last_segment_no_json = last_segment_without_ext(&url, ".json");
 
             let mut path = url.path_segments_mut().unwrap();
 
@@ -678,6 +666,18 @@ fn parse(url: &str) -> Result<Url, ParseError> {
         Ok(u)  => Ok(u),
         Err(e) => Err(ParseError::Parser(e)),
     }
+}
+
+fn last_segment_without_ext(url: &Url, ext: &str) -> Option<String> {
+    url.path_segments().and_then(|segments| {
+        segments.last().and_then(|last| {
+            if last.ends_with(ext) {
+                Some(last.trim_right_matches(ext).to_string())
+            } else {
+                None
+            }
+        })
+    })
 }
 
 // This code will happen when Trait Specialization becomes available
