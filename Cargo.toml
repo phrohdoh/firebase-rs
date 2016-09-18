@@ -1,17 +1,16 @@
 [package]
-
 name = "firebase"
-version = "0.9.1"
-description = "Rust based library for working with Firebase, currently still under heavy development"
+version = "0.10.0"
+description = "Rust library for working with Firebase"
 readme = "README.md"
-repository = "https://github.com/davidrhyswhite/rust-firebase"
+repository = "https://github.com/Phrohdoh/firebase-rs"
 documentation = "http://icanteden.com/rust-firebase/firebase/index.html"
 license = "MIT"
-authors = ["David White <david.white@spry-soft.com>", "Michael Eden <themichaeleden@gmail.com>"]
+authors = ["David White <david.white@spry-soft.com>", "Michael Eden <themichaeleden@gmail.com>", "Taryn Hill <Phrohdoh@gmail.com>"]
 exclude = ["examples/*", "tests/*"]
 keywords = ["firebase", "rest", "api"]
 
 [dependencies]
-url  = "0.2.35"
-curl = "0.2.10"
-rustc-serialize = "0.3.15"
+url  = "1.2.0"
+curl = "0.2.19"
+rustc-serialize = "0.3.19"

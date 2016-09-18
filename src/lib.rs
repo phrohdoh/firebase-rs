@@ -14,6 +14,7 @@ use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 
+// TODO: Upgrade curl (but we'll have to get rid of ::http then)
 use curl::http;
 use url::Url;
 
@@ -44,10 +45,9 @@ impl Firebase {
     ///   will be returned.
     pub fn new(url: &str) -> Result<Self, ParseError> {
         let url = try!( parse(&url) );
-        if url.scheme != "https" {
+        if url.scheme() != "https" {
             return Err(ParseError::UrlIsNotHTTPS);
         }
-        try!( unwrap_path(&url) );
 
         Ok(Firebase {
             url: Arc::new(url),
@@ -62,7 +62,6 @@ impl Firebase {
     ///   will be returned.
     pub fn from_url(url: &Url) -> Result<Self, ParseError> {
         let url = url.clone();
-        try!( unwrap_path(&url) );
 
         Ok(Firebase {
             url: Arc::new(url),
@@ -85,16 +84,27 @@ impl Firebase {
     ///   will be returned.
     pub fn authed(url: &str, auth_token: &str) -> Result<Self, ParseError> {
         let mut url = try!( parse(&url) );
-        if url.scheme != "https" {
+        if url.scheme() != "https" {
             return Err(ParseError::UrlIsNotHTTPS);
         }
-        try!( unwrap_path(&url) );
 
         let opts = vec![ (AUTH, auth_token) ];
-        url.set_query_from_pairs(opts.into_iter());
+        url.query_pairs_mut().extend_pairs(opts.into_iter());
 
         Ok(Firebase {
             url: Arc::new(url),
+        })
+    }
+
+    fn last_segment_without_ext(&self, url: &Url, ext: &str) -> Option<String> {
+        url.path_segments().and_then(|segments| {
+            segments.last().and_then(|last| {
+                if last.ends_with(ext) {
+                    Some(last.trim_right_matches(ext).to_string())
+                } else {
+                    None
+                }
+            })
         })
     }
 
@@ -114,12 +124,17 @@ impl Firebase {
     pub fn at(&self, add_path: &str) -> Result<Self, ParseError> {
         let mut url = (*self.url).clone();
 
-        { // Add path to original path, already checked for path.
-            let mut path = url.path_mut().unwrap();
-            // Remove .json from the old path's end.
-            if let Some(end) = path.pop() {
-                path.push(end.trim_right_matches(".json").to_string());
+        {
+            // Remove '.json' from the end of the old path.
+            // We may have /foo/bar.json and want /foo/bar/baz.json
+            let last_segment_no_json = self.last_segment_without_ext(&url, ".json");
+
+            let mut path = url.path_segments_mut().unwrap();
+
+            if let Some(last_segment) = last_segment_no_json {
+                path.pop().push(&last_segment);
             }
+
             let add_path = add_path.trim_matches('/');
             let add_path = if !add_path.ends_with(".json") {
                 Cow::Owned(add_path.to_string() + ".json")
@@ -128,7 +143,7 @@ impl Firebase {
             };
 
             for component in add_path.split("/").into_iter() {
-                path.push(component.to_string());
+                path.push(component);
             }
         }
 
@@ -166,8 +181,8 @@ impl Firebase {
 
     /// Returns the current URL as a string that will be used
     /// to make the REST call when talking to Firebase.
-    pub fn get_url(&self) -> String {
-        self.url.serialize()
+    pub fn get_url(&self) -> &str {
+        self.url.as_str()
     }
 
     /// Gets data from Firebase.
@@ -431,8 +446,8 @@ impl FirebaseParams {
 
     /// Returns the current URL as a string that will be used
     /// to make the REST call when talking to Firebase.
-    pub fn get_url(&self) -> String {
-        self.url.serialize()
+    pub fn get_url(&self) -> &str {
+        self.url.as_str()
     }
 
     // TODO: Wrap in quotes if not already. Or always wrap in quotes.
@@ -502,20 +517,19 @@ impl FirebaseParams {
         // Only clones the url when edited. This is CoW
         // Many threads can run requests without ever cloning the url.
         let mut url = (*self.url).clone();
-        url.set_query_from_pairs(self.params.iter().map(|(&k, v)| (k, v as &str)));
+        url.query_pairs_mut().extend_pairs(self.params.iter().map(|(&k, v)| (k, v as &str)));
         self.url = Arc::new(url);
     }
 
     fn get_auth(url: &Url) -> HashMap<&'static str, String> {
         let mut pair: HashMap<&'static str, String> = HashMap::new();
 
-        if let Some(queries) = url.query_pairs() {
-            for &(ref k, ref v) in queries.iter() {
-                if k == AUTH {
-                    pair.insert(AUTH, v.to_string());
-                }
+        for (k, v) in url.query_pairs() {
+            if k == AUTH {
+                pair.insert(AUTH, v.to_string());
             }
         }
+
         pair
     }
 
@@ -663,13 +677,6 @@ fn parse(url: &str) -> Result<Url, ParseError> {
     match Url::parse(&url) {
         Ok(u)  => Ok(u),
         Err(e) => Err(ParseError::Parser(e)),
-    }
-}
-
-fn unwrap_path(url: &Url) -> Result<&[String], ParseError> {
-    match url.path() {
-        None    => return Err(ParseError::UrlHasNoPath),
-        Some(p) => return Ok(p),
     }
 }
 
