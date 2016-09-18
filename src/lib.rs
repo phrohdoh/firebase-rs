@@ -74,7 +74,7 @@ impl Firebase {
     /// ```
     /// # use firebase::Firebase;
     /// let fb = Firebase::authed("https://myfb.firebaseio.com", "deadbeefcafe");
-    /// // The url shoud now be: https://myfb.firebaseio.com?auth=deadbeefcafe
+    /// // The url will now be: https://myfb.firebaseio.com?auth=deadbeefcafe
     /// ```
     ///
     /// # Failures
