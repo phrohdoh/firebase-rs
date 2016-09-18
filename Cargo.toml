@@ -11,6 +11,7 @@ exclude = ["examples/*", "tests/*"]
 keywords = ["firebase", "rest", "api"]
 
 [dependencies]
-url  = "1.2.0"
+# TODO: This is temporary! (waiting for https://github.com/servo/rust-url/pull/223 to land)
+url = { git = "git@github.com:Phrohdoh/rust-url.git" }
 curl = "0.2.19"
 rustc-serialize = "0.3.19"
