@@ -158,6 +158,7 @@ fn test_resp_struct_easy() {
     assert_eq!(bee.buzz, 5);
 }
 
+// TODO: This doesn't compile.
 fn assert_queries(a: &Url, b: &Url) {
     let param_a = a.query_pairs().expect("Url should have query params.");
     let param_b = b.query_pairs().expect("Url should have query params.");
