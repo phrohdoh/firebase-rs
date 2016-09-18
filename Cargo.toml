@@ -15,3 +15,6 @@ keywords = ["firebase", "rest", "api"]
 url = { git = "https://github.com/Phrohdoh/rust-url.git" }
 curl = "0.2.19"
 rustc-serialize = "0.3.19"
+
+[replace]
+"url:1.2.0" = { git = "https://github.com/Phrohdoh/rust-url.git" }
