@@ -12,5 +12,5 @@ keywords = ["firebase", "rest", "api"]
 
 [dependencies]
 url = "1.2.1"
-curl = "0.2.19"
+hyper = "0.9.10"
 rustc-serialize = "0.3.19"

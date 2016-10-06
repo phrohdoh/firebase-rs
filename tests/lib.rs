@@ -1,8 +1,10 @@
 extern crate firebase;
 extern crate url;
+extern crate hyper;
 extern crate rustc_serialize;
 
 use firebase::*;
+use hyper::status::StatusCode;
 use url::Url;
 
 use std::sync::{Arc, Mutex};
@@ -17,7 +19,7 @@ fn builds_auth_url() {
 fn extends_auth_url() {
     let f = Firebase::authed("https://db.rifebass.com/", "deadbeaf").ok().unwrap();
     let f = f.at("/futurama/SpacePilot3000").ok().unwrap();
-    let url_now = "https://db.rifebass.com//futurama/SpacePilot3000.json?auth=deadbeaf";
+    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
     assert_eq!(url_now, f.get_url());
 }
 
@@ -26,7 +28,7 @@ fn double_extends_url() {
     let f = Firebase::authed("https://db.rifebass.com", "deadbeaf").ok().unwrap();
     let f = f.at("/futurama.json").ok().unwrap();
     let f = f.at("SpacePilot3000").ok().unwrap();
-    let url_now = "https://db.rifebass.com//futurama/SpacePilot3000.json?auth=deadbeaf";
+    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
     assert_eq!(url_now, f.get_url());
 }
 
@@ -35,13 +37,13 @@ fn handle_slashes() {
     let f = Firebase::authed("https://db.rifebass.com", "deadbeaf").ok().unwrap();
     let f = f.at("futurama.json").ok().unwrap();
     let f = f.at("SpacePilot3000.json").ok().unwrap();
-    let url_now = "https://db.rifebass.com//futurama/SpacePilot3000.json?auth=deadbeaf";
+    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
     assert_eq!(url_now, f.get_url());
 
     let f = Firebase::authed("https://db.rifebass.com/", "deadbeaf").ok().unwrap();
     let f = f.at("/futurama/").ok().unwrap();
     let f = f.at("/SpacePilot3000/").ok().unwrap();
-    let url_now = "https://db.rifebass.com//futurama/SpacePilot3000.json?auth=deadbeaf";
+    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
     assert_eq!(url_now, f.get_url());
 }
 
@@ -58,7 +60,7 @@ fn handle_json_suffix() {
              .at("1.json").ok().unwrap().at("9.json").ok().unwrap()
              .at("7.json").ok().unwrap().at("2.json").ok().unwrap()
              .at("5.json").ok().unwrap().at("3.json").ok().unwrap();
-    let url_now = "https://db.rifebass.com//0/1/1/8/9/9/9/8/8/1/9/9/9/1/1/9/7/2/5/3.json";
+    let url_now = "https://db.rifebass.com/0/1/1/8/9/9/9/8/8/1/9/9/9/1/1/9/7/2/5/3.json";
     assert_eq!(url_now, f.get_url());
 }
 
@@ -70,7 +72,8 @@ fn test_ops() {
     let correct = Url::parse("https://db.fe//lol.json?limitToFirst=4&endAt=13&equalTo=8&shallow=false").ok().unwrap();
     let generated = Url::parse(&req.get_url()).ok().unwrap();
 
-    assert_queries(&correct, &generated);
+    assert_eq!(&correct, &generated);
+    //assert_queries(&correct, &generated);
 }
 
 #[test]
@@ -81,7 +84,8 @@ fn test_auth_ops() {
     let correct = Url::parse("https://db.fe/lol.json?auth=key&orderBy=pts&limitToLast=5&startAt=8").ok().unwrap();
     let generated = Url::parse(&req.get_url()).ok().unwrap();
 
-    assert_queries(&correct, &generated);
+    assert_eq!(&correct, &generated);
+    //assert_queries(&correct, &generated);
 }
 
 #[test]
@@ -122,7 +126,7 @@ fn test_ops_ctor() {
 #[test]
 fn test_resp_json() {
     let response = Response {
-        code: 200,
+        code: StatusCode::Ok,
         body: "{
             \"id\":   \"mongo id\",
             \"data\": \"Hello World!\"
@@ -145,7 +149,7 @@ fn test_resp_json() {
 #[test]
 fn test_resp_struct_easy() {
     let response = Response {
-        code: 200,
+        code: StatusCode::Ok,
         body: "{
             \"fizz\": 3,
             \"buzz\": 5
@@ -163,6 +167,17 @@ fn assert_queries(a: &Url, b: &Url) {
     let param_b = b.query_pairs();
 
     assert_eq!(param_b.count(), param_a.count());
+
+    let param_a = a.query_pairs().collect::<Vec<_>>();
+    let param_b = b.query_pairs().collect::<Vec<_>>();
+
+    for query_param_a in param_a.clone() {
+        assert!(param_b.contains(&query_param_a));
+    }
+
+    for query_param_b in param_b {
+        assert!(param_a.contains(&query_param_b));
+    }
 }
 
 #[derive(RustcDecodable)]

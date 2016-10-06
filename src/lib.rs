@@ -3,19 +3,20 @@
  Please have a look at the ```Firebase``` struct to get started.
  */
 
-extern crate curl;
+extern crate hyper;
 extern crate url;
 extern crate rustc_serialize;
 
 use std::str;
+use std::io::Read;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 
-// TODO: Upgrade curl (but we'll have to get rid of ::http then)
-use curl::http;
+use hyper::Client;
+use hyper::status::StatusCode;
 use url::Url;
 
 use rustc_serialize::Decodable;
@@ -340,29 +341,37 @@ impl Firebase {
     }
 
     fn request_url(url: &Url, method: Method, data: Option<&str>) -> Result<Response, ReqErr> {
-        let mut handler = http::handle();
+        let client = Client::new();
+        let url = url.clone();
 
         let req = match method {
-            Method::GET     => handler.get(   url),
-            Method::POST    => handler.post(  url, data.unwrap()),
-            Method::PUT     => handler.put(   url, data.unwrap()),
-            Method::PATCH   => handler.patch( url, data.unwrap()),
-            Method::DELETE  => handler.delete(url),
+            Method::GET     => client.get(   url),
+            Method::POST    => client.post(  url).body(data.unwrap()),
+            Method::PUT     => client.put(   url).body(data.unwrap()),
+            Method::PATCH   => client.patch( url).body(data.unwrap()),
+            Method::DELETE  => client.delete(url),
         };
 
-        let res = match req.exec() {
+        let mut res = match req.send() {
             Ok(r)  => r,
             Err(e) => return Err(ReqErr::NetworkErr(e)),
         };
 
-        let body = match str::from_utf8(res.get_body()) {
+        let mut body_string = String::new();
+        //try!(res.read_to_string(&mut body_string));
+        match res.read_to_string(&mut body_string) {
+            Ok(_) => { },
+            Err(e) => return Err(ReqErr::OtherErr(e)),
+        };
+
+        let body = match str::from_utf8(body_string.as_bytes()) {
             Ok(b)  => b,
             Err(e) => return Err(ReqErr::RespNotUTF8(e)),
         };
 
         Ok(Response {
             body: body.to_string(),
-            code: res.get_code(),
+            code: res.status,
         })
     }
 
@@ -616,7 +625,8 @@ impl<'l> Default for FbOps<'l> {
 pub enum ReqErr {
     ReqNotJSON,
     RespNotUTF8(str::Utf8Error),
-    NetworkErr(curl::ErrCode),
+    NetworkErr(hyper::error::Error),
+    OtherErr(std::io::Error),
 }
 
 #[derive(Debug)]
@@ -629,13 +639,13 @@ pub enum ParseError {
 #[derive(Debug)]
 pub struct Response {
     pub body: String,
-    pub code: u32,
+    pub code: hyper::status::StatusCode,
 }
 
 impl Response {
     /// Returns true if the status code is 200
     pub fn is_success(&self) -> bool {
-        self.code == 200
+        self.code == StatusCode::Ok
     }
 
     /// Turns the response body into a Json enum.
