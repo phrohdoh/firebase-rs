@@ -158,16 +158,11 @@ fn test_resp_struct_easy() {
     assert_eq!(bee.buzz, 5);
 }
 
-// TODO: This doesn't compile.
 fn assert_queries(a: &Url, b: &Url) {
-    let param_a = a.query_pairs().expect("Url should have query params.");
-    let param_b = b.query_pairs().expect("Url should have query params.");
+    let param_a = a.query_pairs();
+    let param_b = b.query_pairs();
 
-    assert_eq!(param_b.len(), param_a.len());
-
-    for pair in param_a.iter() {
-        assert!(param_b.contains(pair));
-    }
+    assert_eq!(param_b.count(), param_a.count());
 }
 
 #[derive(RustcDecodable)]
