@@ -358,7 +358,6 @@ impl Firebase {
         };
 
         let mut body_string = String::new();
-        //try!(res.read_to_string(&mut body_string));
         match res.read_to_string(&mut body_string) {
             Ok(_) => { },
             Err(e) => return Err(ReqErr::OtherErr(e)),
