@@ -72,9 +72,6 @@ fn test_ops() {
     let correct = Url::parse("https://db.fe//lol.json?limitToFirst=4&endAt=13&equalTo=8&shallow=false").ok().unwrap();
     let generated = Url::parse(&req.get_url()).ok().unwrap();
 
-    println!("{:?}", req.get_url());
-    println!("{:?}", generated);
-
     assert_queries(&correct, &generated);
 }
 
