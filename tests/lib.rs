@@ -72,8 +72,10 @@ fn test_ops() {
     let correct = Url::parse("https://db.fe//lol.json?limitToFirst=4&endAt=13&equalTo=8&shallow=false").ok().unwrap();
     let generated = Url::parse(&req.get_url()).ok().unwrap();
 
-    assert_eq!(&correct, &generated);
-    //assert_queries(&correct, &generated);
+    println!("{:?}", req.get_url());
+    println!("{:?}", generated);
+
+    assert_queries(&correct, &generated);
 }
 
 #[test]
@@ -84,8 +86,7 @@ fn test_auth_ops() {
     let correct = Url::parse("https://db.fe/lol.json?auth=key&orderBy=pts&limitToLast=5&startAt=8").ok().unwrap();
     let generated = Url::parse(&req.get_url()).ok().unwrap();
 
-    assert_eq!(&correct, &generated);
-    //assert_queries(&correct, &generated);
+    assert_queries(&correct, &generated);
 }
 
 #[test]

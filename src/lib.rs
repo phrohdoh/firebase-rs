@@ -513,7 +513,21 @@ impl FirebaseParams {
         // Only clones the url when edited. This is CoW
         // Many threads can run requests without ever cloning the url.
         let mut url = (*self.url).clone();
-        url.query_pairs_mut().extend_pairs(self.params.iter().map(|(&k, v)| (k, v as &str)));
+
+        let mut qps: HashMap<String, String> = HashMap::new();
+
+        for (qk, qv) in url.query_pairs() {
+            let qk_string = qk[..].to_string();
+            let qv_string = qv.to_string();
+
+            if let Some(param_v) = self.params.get(&qk[..]) {
+                qps.insert(qk_string, param_v.to_string());
+            } else {
+                qps.insert(qk_string, qv_string);
+            }
+        }
+
+        url.query_pairs_mut().clear().extend_pairs(self.params.iter().map(|(&k, v)| (k, v as &str)));
         self.url = Arc::new(url);
     }
 
@@ -652,19 +666,7 @@ impl Response {
         Json::from_str(&self.body)
     }
 
-    /// Encodes the data received into a struct matching the data.
-    /// # Examples
-    ///
-    /// ```
-    /// # use firebase::Response;
-    /// let response = Response {
-    ///     body: "324567898".to_string(),
-    ///     code: 200,
-    /// };
-    ///
-    /// let parsed: u32 = response.parse().unwrap();
-    /// println!("Data is: {}", parsed);
-    /// ```
+    // TODO: Document this.
     pub fn parse<D>(&self) -> Result<D, DecoderError> where D: Decodable {
         json::decode(&self.body)
     }
