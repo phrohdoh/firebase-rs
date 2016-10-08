@@ -1,1 +1,27 @@
 language: rust
+
+rust:
+  - stable
+  - nightly
+  
+matrix:
+  allow_failures:
+    - rust: nightly
+    
+os:
+  - linux
+  - osx
+  
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo doc
+  
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  [ $TRAVIS_RUST_VERSION = nightly ] &&
+  echo '<meta http-equiv=refresh content=0;url=firebase/index.html>' > target/doc/index.html &&
+  pip install ghp-import --user $USER &&
+  $HOME/.local/bin/ghp-import -n target/doc &&
+  git push -qf https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
