@@ -368,10 +368,21 @@ impl Firebase {
             Err(e) => return Err(ReqErr::RespNotUTF8(e)),
         };
 
-        Ok(Response {
+        let resp = Response {
             body: body.to_string(),
             code: res.status,
-        })
+        };
+
+        if !resp.is_success() {
+            let err = match resp.parse::<FbIoErr>() {
+                Ok(io_err) => io_err,
+                Err(e) => return Err(ReqErr::FirebaseIoJsonParseErr(e)),
+            };
+
+            return Err(ReqErr::FirebaseIoErr(err.error));
+        }
+
+        Ok(resp)
     }
 
     fn request_url_async<F>(url: &Arc<Url>, method: Method, data: Option<String>, callback: F) -> JoinHandle<()>
@@ -639,7 +650,14 @@ pub enum ReqErr {
     ReqNotJSON,
     RespNotUTF8(str::Utf8Error),
     NetworkErr(hyper::error::Error),
+    FirebaseIoErr(String),
+    FirebaseIoJsonParseErr(rustc_serialize::json::DecoderError),
     OtherErr(std::io::Error),
+}
+
+#[derive(RustcDecodable, Debug)]
+struct FbIoErr {
+    pub error: String,
 }
 
 #[derive(Debug)]
