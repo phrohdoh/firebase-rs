@@ -374,7 +374,11 @@ impl Firebase {
         };
 
         if !resp.is_success() {
-            let err = try!(resp.parse::<FbIoErr>());
+            let err = match resp.parse::<FbIoErr>() {
+                Ok(io_err) => io_err,
+                Err(e) => return Err(ReqErr::FirebaseIoJsonParseErr(e)),
+            };
+
             return Err(ReqErr::FirebaseIoErr(err.error));
         }
 
@@ -647,6 +651,7 @@ pub enum ReqErr {
     RespNotUTF8(str::Utf8Error),
     NetworkErr(hyper::error::Error),
     FirebaseIoErr(String),
+    FirebaseIoJsonParseErr(rustc_serialize::json::DecoderError),
     OtherErr(std::io::Error),
 }
 
