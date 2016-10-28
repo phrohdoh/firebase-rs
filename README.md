@@ -121,3 +121,7 @@ let json = "{ \"name\": \"David Smith\" }"
 let people = firebase.at("/earth/us/indiana");
 let response = episodes.push(json);
 ```
+
+### WebSocket connection
+
+https://crates.io/search?q=websocket
