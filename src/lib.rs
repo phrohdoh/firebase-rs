@@ -3,6 +3,7 @@
 //!
 
 extern crate hyper;
+extern crate hyper_openssl;
 extern crate url;
 extern crate rustc_serialize;
 
@@ -16,6 +17,8 @@ use std::thread::JoinHandle;
 
 use hyper::Client;
 use hyper::status::StatusCode;
+use hyper::net::HttpsConnector;
+use hyper_openssl::OpensslClient;
 use url::Url;
 
 use rustc_serialize::Decodable;
@@ -340,7 +343,13 @@ impl Firebase {
     }
 
     fn request_url(url: &Url, method: Method, data: Option<&str>) -> Result<Response, ReqErr> {
-        let client = Client::new();
+        let ssl = match OpensslClient::new() {
+            Ok(ssl) => ssl,
+            Err(e) => return Err(ReqErr::SslErr(e)),
+        };
+
+        let connector = HttpsConnector::new(ssl);
+        let client = Client::with_connector(connector);
         let url = url.clone();
 
         let req = match method {
@@ -657,6 +666,7 @@ pub enum ReqErr {
     ReqNotJSON,
     RespNotUTF8(str::Utf8Error),
     NetworkErr(hyper::error::Error),
+    SslErr(hyper_openssl::openssl::error::ErrorStack),
     FirebaseIoErr(String),
     FirebaseIoJsonParseErr(rustc_serialize::json::DecoderError),
     OtherErr(std::io::Error),
