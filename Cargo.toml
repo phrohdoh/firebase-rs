@@ -1,6 +1,6 @@
 [package]
 name = "firebase"
-version = "0.12.0"
+version = "0.12.1"
 description = "Rust library for working with Firebase"
 readme = "README.md"
 repository = "https://github.com/Phrohdoh/firebase-rs"
