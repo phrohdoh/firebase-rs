@@ -1,6 +1,6 @@
 [package]
 name = "firebase"
-version = "0.12.1"
+version = "0.12.2"
 description = "Rust library for working with Firebase"
 readme = "README.md"
 repository = "https://github.com/Phrohdoh/firebase-rs"
@@ -13,4 +13,5 @@ keywords = ["firebase", "rest", "api"]
 [dependencies]
 url = "1.2.1"
 hyper = "0.10"
+hyper-openssl = "0.2"
 rustc-serialize = "0.3.19"
