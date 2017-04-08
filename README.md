@@ -9,6 +9,10 @@ API Docs can be found [here](https://phrohdoh.github.io/firebase-rs/firebase/ind
 The APIs in this README do not document all of the APIs available!
 Go to the official docs for the most up to date version of the API.
 
+## This is unmaintained software! (as of 2017-April-08)
+
+I no longer have a reason to use Firebase so my time will not be spent working on this library.
+
 ## Load the crate!
 
 Don't forget to include the library in your project:
