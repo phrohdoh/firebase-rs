@@ -81,6 +81,7 @@ impl Firebase {
     ///   will be returned.
     /// - If a url cannot be parsed into a valid url then a ```Err(ParseError::Parser(url::ParseError)```
     ///   will be returned.
+    #[deprecated]
     pub fn authed(url: &str, auth_token: &str) -> Result<Self, ParseError> {
         let mut url = try!(parse(&url));
         if url.scheme() != "https" {
