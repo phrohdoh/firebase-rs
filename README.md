@@ -27,11 +27,7 @@ let firebase = Firebase::new("https://<your-firebase>.firebaseio.com");
 ```
 
 ### Authenticated
-Or you can create an authenticated connection by supplying your [auth](https://www.firebase.com/docs/rest/guide/user-auth.html) token:
-
-```Rust
-let firebase = Firebase::authed("https://<your-firebase>.firebaseio.com", "<token>");
-```
+This library does not support authentication via OAuth2.
 
 **NOTE:** You must send your requests through HTTPS or Firebase will reject it.
 Not specifying HTTPS will also result in an error: ParseError::UrlIsNotHTTPS

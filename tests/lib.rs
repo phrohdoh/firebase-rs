@@ -10,40 +10,26 @@ use url::Url;
 use std::sync::{Arc, Mutex};
 
 #[test]
-fn builds_auth_url() {
-    let f = Firebase::authed("https://db.rifebass.com/", "deadbeaf").ok().unwrap();
-    assert_eq!(f.get_url(), "https://db.rifebass.com/?auth=deadbeaf");
-}
-
-#[test]
-fn extends_auth_url() {
-    let f = Firebase::authed("https://db.rifebass.com/", "deadbeaf").ok().unwrap();
-    let f = f.at("/futurama/SpacePilot3000").ok().unwrap();
-    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
-    assert_eq!(url_now, f.get_url());
-}
-
-#[test]
 fn double_extends_url() {
-    let f = Firebase::authed("https://db.rifebass.com", "deadbeaf").ok().unwrap();
+    let f = Firebase::new("https://db.rifebass.com").ok().unwrap();
     let f = f.at("/futurama.json").ok().unwrap();
     let f = f.at("SpacePilot3000").ok().unwrap();
-    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
+    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json";
     assert_eq!(url_now, f.get_url());
 }
 
 #[test]
 fn handle_slashes() {
-    let f = Firebase::authed("https://db.rifebass.com", "deadbeaf").ok().unwrap();
+    let f = Firebase::new("https://db.rifebass.com").ok().unwrap();
     let f = f.at("futurama.json").ok().unwrap();
     let f = f.at("SpacePilot3000.json").ok().unwrap();
-    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
+    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json";
     assert_eq!(url_now, f.get_url());
 
-    let f = Firebase::authed("https://db.rifebass.com/", "deadbeaf").ok().unwrap();
+    let f = Firebase::new("https://db.rifebass.com/").ok().unwrap();
     let f = f.at("/futurama/").ok().unwrap();
     let f = f.at("/SpacePilot3000/").ok().unwrap();
-    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json?auth=deadbeaf";
+    let url_now = "https://db.rifebass.com/futurama/SpacePilot3000.json";
     assert_eq!(url_now, f.get_url());
 }
 
@@ -70,17 +56,6 @@ fn test_ops() {
     let f = f.at("lol").ok().expect("extend err");
     let req = f.end_at(13).limit_to_first(4).equal_to(8).shallow(false);
     let correct = Url::parse("https://db.fe//lol.json?limitToFirst=4&endAt=13&equalTo=8&shallow=false").ok().unwrap();
-    let generated = Url::parse(&req.get_url()).ok().unwrap();
-
-    assert_queries(&correct, &generated);
-}
-
-#[test]
-fn test_auth_ops() {
-    let f = Firebase::authed("https://db.fe/", "key").ok().expect("url err").at("lol").ok().unwrap();
-    let req = f.order_by("pts").limit_to_last(5).start_at(8);
-
-    let correct = Url::parse("https://db.fe/lol.json?auth=key&orderBy=pts&limitToLast=5&startAt=8").ok().unwrap();
     let generated = Url::parse(&req.get_url()).ok().unwrap();
 
     assert_queries(&correct, &generated);

@@ -67,33 +67,6 @@ impl Firebase {
         Ok(Firebase { url: Arc::new(url) })
     }
 
-    /// Creates a new authenticated Firebase instance from the firebaseio url and an auth token.
-    ///
-    /// # Examples
-    /// ```
-    /// # use firebase::Firebase;
-    /// let fb = Firebase::authed("https://myfb.firebaseio.com", "deadbeefcafe");
-    /// // The url will now be: https://myfb.firebaseio.com?auth=deadbeefcafe
-    /// ```
-    ///
-    /// # Failures
-    /// - If a url is not specified with the HTTPS scheme, a ```Err(ParseError::UrlIsNotHTTPS)```
-    ///   will be returned.
-    /// - If a url cannot be parsed into a valid url then a ```Err(ParseError::Parser(url::ParseError)```
-    ///   will be returned.
-    #[deprecated]
-    pub fn authed(url: &str, auth_token: &str) -> Result<Self, ParseError> {
-        let mut url = try!(parse(&url));
-        if url.scheme() != "https" {
-            return Err(ParseError::UrlIsNotHTTPS);
-        }
-
-        let opts = vec![(AUTH, auth_token)];
-        url.query_pairs_mut().extend_pairs(opts.into_iter());
-
-        Ok(Firebase { url: Arc::new(url) })
-    }
-
     /// Creates a new firebase instance that extends the path of an old firebase instance.
     /// Each time a reference is created a clone of the Firebase instance if done, all
     /// Firebase instances follow this immutable style.
@@ -559,22 +532,10 @@ impl FirebaseParams {
         self.url = Arc::new(url);
     }
 
-    fn get_auth(url: &Url) -> HashMap<&'static str, String> {
-        let mut pair: HashMap<&'static str, String> = HashMap::new();
-
-        for (k, v) in url.query_pairs() {
-            if k == AUTH {
-                pair.insert(AUTH, v.to_string());
-            }
-        }
-
-        pair
-    }
-
     fn new<T: ToString>(url: &Url, key: &'static str, value: T) -> Self {
         let me = FirebaseParams {
             url: Arc::new(url.clone()),
-            params: FirebaseParams::get_auth(&url),
+            params: HashMap::new(),
         };
         me.add_param(key, value)
     }
@@ -582,7 +543,7 @@ impl FirebaseParams {
     fn from_ops(url: &Url, opts: &FbOps) -> Self {
         let mut me = FirebaseParams {
             url: Arc::new(url.clone()),
-            params: FirebaseParams::get_auth(&url),
+            params: HashMap::new(),
         };
         if let Some(order) = opts.order_by {
             me.params.insert(ORDER_BY, order.to_string());
@@ -633,7 +594,6 @@ const EQUAL_TO: &'static str = "equalTo";
 const SHALLOW: &'static str = "shallow";
 const FORMAT: &'static str = "format";
 const EXPORT: &'static str = "export";
-const AUTH: &'static str = "auth";
 
 #[derive(Debug)]
 pub struct FbOps<'l> {
