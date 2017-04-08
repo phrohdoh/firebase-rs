@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `FirebaseParams` struct in crate `firebase`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, FirebaseParams">
+
+    <title>firebase::FirebaseParams - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>firebase</a></p><script>window.sidebarCurrent = {name: 'FirebaseParams', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>firebase</a>::<wbr><a class="struct" href=''>FirebaseParams</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/firebase/lib.rs.html#416-419' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct FirebaseParams { /* fields omitted */ }</pre><div class='docblock'><p>The FirebaseParams struct is a Firebase reference with attatched
+query parameters that allow you to sort, limit, and format the data
+received from Firebase.</p>
+<p>It has been made into its own struct because the Firebase API specifies
+that you can only GET data with query parameters. And so taking advantage of
+type systems, this struct can only GET data.</p>
+<p>You can add any number of parameters to this struct by chaining calls together:</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">episodes</span> <span class="op">=</span> <span class="ident">Firebase</span>::<span class="ident">new</span>(<span class="string">&quot;https://futurama.firebaseio.com/episodes/&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">alphabetic</span> <span class="op">=</span> <span class="ident">episodes</span>.<span class="ident">order_by</span>(<span class="string">&quot;\&quot;title\&quot;&quot;</span>).<span class="ident">limit_to_first</span>(<span class="number">5</span>);
+<span class="kw">let</span> <span class="ident">first5</span> <span class="op">=</span> <span class="ident">alphabetic</span>.<span class="ident">get</span>();</pre>
+<p>Setting the same parameter overwrites the previous parameter:</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">episodes</span> <span class="op">=</span> <span class="ident">Firebase</span>::<span class="ident">new</span>(<span class="string">&quot;https://arrdev.firebaseio.com/episodes/&quot;</span>).<span class="ident">unwrap</span>();
+<span class="comment">// This will create a request that gets entries starting at the 0th index.</span>
+<span class="kw">let</span> <span class="ident">skip10</span> <span class="op">=</span> <span class="ident">episodes</span>.<span class="ident">start_at</span>(<span class="number">10</span>).<span class="ident">start_at</span>(<span class="number">0</span>);</pre>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class="struct" href="../firebase/struct.FirebaseParams.html" title="struct firebase::FirebaseParams">FirebaseParams</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/firebase/lib.rs.html#421-578' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.get' class="method"><span id='get.v' class='invisible'><code>fn <a href='#method.get' class='fnname'>get</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../firebase/struct.Response.html" title="struct firebase::Response">Response</a>, <a class="enum" href="../firebase/enum.ReqErr.html" title="enum firebase::ReqErr">ReqErr</a>&gt;</code></span></h4>
+<div class='docblock'><p>Gets data from Firebase.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">episodes</span> <span class="op">=</span> <span class="ident">Firebase</span>::<span class="ident">new</span>(<span class="string">&quot;https://futurama.firebaseio.com/episodes/&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">alphabetic</span> <span class="op">=</span> <span class="ident">episodes</span>.<span class="ident">order_by</span>(<span class="string">&quot;\&quot;title\&quot;&quot;</span>).<span class="ident">limit_to_first</span>(<span class="number">5</span>);
+<span class="kw">let</span> <span class="ident">first5</span> <span class="op">=</span> <span class="ident">alphabetic</span>.<span class="ident">get</span>();</pre>
+</div><h4 id='method.get_async' class="method"><span id='get_async.v' class='invisible'><code>fn <a href='#method.get_async' class='fnname'>get_async</a>&lt;F&gt;(&amp;self, callback: F) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/std/thread/struct.JoinHandle.html" title="struct std::thread::JoinHandle">JoinHandle</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">()</a>&gt; <span class="where fmt-newline">where F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/trait.Fn.html" title="trait core::ops::Fn">Fn</a>(<a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../firebase/struct.Response.html" title="struct firebase::Response">Response</a>, <a class="enum" href="../firebase/enum.ReqErr.html" title="enum firebase::ReqErr">ReqErr</a>&gt;) + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static</span></code></span></h4>
+<div class='docblock'><p>Asynchronous version of the get method, takes a callback
+and returns a handle to the thread making the request to Firebase.</p>
+</div><h4 id='method.get_url' class="method"><span id='get_url.v' class='invisible'><code>fn <a href='#method.get_url' class='fnname'>get_url</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span></h4>
+<div class='docblock'><p>Returns the current URL as a string that will be used
+to make the REST call when talking to Firebase.</p>
+</div><h4 id='method.order_by' class="method"><span id='order_by.v' class='invisible'><code>fn <a href='#method.order_by' class='fnname'>order_by</a>(self, key: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and sorts this data by the key provided.</p>
+</div><h4 id='method.limit_to_first' class="method"><span id='limit_to_first.v' class='invisible'><code>fn <a href='#method.limit_to_first' class='fnname'>limit_to_first</a>(self, count: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and limits the number of entries returned
+on each request to the first <code>count</code>. Often used with <code>order_by</code>.</p>
+</div><h4 id='method.limit_to_last' class="method"><span id='limit_to_last.v' class='invisible'><code>fn <a href='#method.limit_to_last' class='fnname'>limit_to_last</a>(self, count: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and limits the number of entries returned
+on each request to the last <code>count</code>. Often used with <code>order_by</code>.</p>
+</div><h4 id='method.start_at' class="method"><span id='start_at.v' class='invisible'><code>fn <a href='#method.start_at' class='fnname'>start_at</a>(self, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and only returns entries starting after
+the specified index. Often used with <code>order_by</code>.</p>
+</div><h4 id='method.end_at' class="method"><span id='end_at.v' class='invisible'><code>fn <a href='#method.end_at' class='fnname'>end_at</a>(self, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and only returns entries appearing before
+the specified index. Often used with <code>order_by</code>.</p>
+</div><h4 id='method.equal_to' class="method"><span id='equal_to.v' class='invisible'><code>fn <a href='#method.equal_to' class='fnname'>equal_to</a>(self, value: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and returns only the entry at the specified
+index. Often used with <code>order_by</code>.</p>
+</div><h4 id='method.shallow' class="method"><span id='shallow.v' class='invisible'><code>fn <a href='#method.shallow' class='fnname'>shallow</a>(self, flag: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and only returns a shallow copy of the db
+in every request.</p>
+</div><h4 id='method.format' class="method"><span id='format.v' class='invisible'><code>fn <a href='#method.format' class='fnname'>format</a>(self) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Modifies the current <code>FirebaseParams</code> instance
+and formats the data to be exported in every
+request. (e.g. includes a priority field)</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../firebase/struct.FirebaseParams.html" title="struct firebase::FirebaseParams">FirebaseParams</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/firebase/lib.rs.html#415' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../firebase/struct.FirebaseParams.html" title="struct firebase::FirebaseParams">FirebaseParams</a></code></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "firebase";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
